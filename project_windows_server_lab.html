@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Windows Server 2022 Lab – Vishnu Sivadas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #080b10;
+  --surface: #0d1117;
+  --card: #111722;
+  --border: #1c2535;
+  --border2: #243045;
+  --accent: #4f9eff;
+  --accent-dim: rgba(79,158,255,0.1);
+  --green: #00e5a0;
+  --green-dim: rgba(0,229,160,0.08);
+  --orange: #ff8c42;
+  --purple: #b06fff;
+  --text: #dde4f0;
+  --muted: #6b7a99;
+  --muted2: #8a97b5;
+  --tag-bg: #131d2e;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  line-height: 1.7;
+  overflow-x: hidden;
+  font-size: 13.5px;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: radial-gradient(circle, rgba(79,158,255,0.055) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none; z-index: 0;
+}
+.wrap { max-width: 1020px; margin: 0 auto; padding: 0 1.75rem; position: relative; z-index: 1; }
+
+/* HERO */
+.hero { padding: 4.5rem 0 2.5rem; border-bottom: 1px solid var(--border); }
+.breadcrumb { font-size: 0.68rem; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 1.8rem; }
+.breadcrumb span { color: var(--accent); }
+.badge {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  font-size: 0.67rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--green); border: 1px solid var(--green); padding: 0.28rem 0.8rem;
+  border-radius: 2px; margin-bottom: 1.5rem;
+}
+.badge::before { content: '●'; font-size: 0.5rem; }
+h1 {
+  font-family: 'Syne', sans-serif; font-size: clamp(1.9rem, 4.5vw, 3rem);
+  font-weight: 800; line-height: 1.08; letter-spacing: -0.025em; margin-bottom: 1.2rem;
+}
+h1 em { font-style: normal; color: var(--accent); }
+.hero-lead { font-size: 0.87rem; color: var(--muted2); max-width: 640px; line-height: 1.9; margin-bottom: 2.2rem; }
+.meta-strip { display: flex; flex-wrap: wrap; gap: 2.5rem; }
+.meta-item { display: flex; flex-direction: column; gap: 0.2rem; }
+.meta-k { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+.meta-v { font-size: 0.82rem; color: var(--text); }
+
+/* TAGS */
+.tags { display: flex; flex-wrap: wrap; gap: 0.45rem; padding: 1.8rem 0; border-bottom: 1px solid var(--border); }
+.tag { font-size: 0.68rem; letter-spacing: 0.07em; background: var(--tag-bg); border: 1px solid var(--border2); color: var(--accent); padding: 0.28rem 0.75rem; border-radius: 2px; }
+.tag.g { color: var(--green); border-color: rgba(0,229,160,0.2); background: var(--green-dim); }
+.tag.o { color: var(--orange); border-color: rgba(255,140,66,0.2); background: rgba(255,140,66,0.07); }
+
+/* SECTIONS */
+.section { padding: 2.8rem 0; border-bottom: 1px solid var(--border); }
+.section:last-of-type { border-bottom: none; }
+.sec-label { font-size: 0.62rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--orange); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.sec-title { font-family: 'Syne', sans-serif; font-size: 1.25rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 0.8rem; }
+.sec-body { font-size: 0.83rem; color: var(--muted2); line-height: 1.9; max-width: 780px; }
+
+/* PHASE GRID */
+.phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1.8rem; }
+.phase-card { background: var(--card); padding: 1.4rem; }
+.phase-icon { font-size: 1.3rem; margin-bottom: 0.7rem; }
+.phase-num { font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem; }
+.phase-name { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem; }
+.phase-desc { font-size: 0.76rem; color: var(--muted); line-height: 1.7; }
+
+/* TIMELINE */
+.timeline { margin-top: 1.8rem; display: flex; flex-direction: column; }
+.t-step { display: grid; grid-template-columns: 2.8rem 1fr; }
+.t-left { display: flex; flex-direction: column; align-items: center; padding-top: 1.1rem; }
+.t-dot { width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--accent); background: var(--tag-bg); display: flex; align-items: center; justify-content: center; font-size: 0.62rem; color: var(--accent); flex-shrink: 0; opacity: 0; animation: fadeUp 0.4s ease forwards; }
+.t-step:nth-child(1) .t-dot  { animation-delay: 0.05s; }
+.t-step:nth-child(2) .t-dot  { animation-delay: 0.1s; }
+.t-step:nth-child(3) .t-dot  { animation-delay: 0.15s; }
+.t-step:nth-child(4) .t-dot  { animation-delay: 0.2s; }
+.t-step:nth-child(5) .t-dot  { animation-delay: 0.25s; }
+.t-step:nth-child(6) .t-dot  { animation-delay: 0.3s; }
+.t-step:nth-child(7) .t-dot  { animation-delay: 0.35s; }
+.t-step:nth-child(8) .t-dot  { animation-delay: 0.4s; }
+.t-step:nth-child(9) .t-dot  { animation-delay: 0.45s; }
+.t-step:nth-child(10) .t-dot { animation-delay: 0.5s; }
+.t-step:nth-child(11) .t-dot { animation-delay: 0.55s; }
+.t-step:nth-child(12) .t-dot { animation-delay: 0.6s; }
+@keyframes fadeUp { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+.t-line { width: 1px; flex: 1; background: var(--border); margin-top: 4px; min-height: 18px; }
+.t-step:last-child .t-line { display: none; }
+.t-body { padding: 0.85rem 0 0.85rem 1.1rem; }
+.t-phase { font-size: 0.62rem; letter-spacing: 0.13em; text-transform: uppercase; color: var(--green); margin-bottom: 0.18rem; }
+.t-title { font-family: 'Syne', sans-serif; font-size: 0.92rem; font-weight: 700; margin-bottom: 0.35rem; }
+.t-desc { font-size: 0.77rem; color: var(--muted); line-height: 1.75; }
+.t-config { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.cfg { font-size: 0.65rem; background: var(--tag-bg); border: 1px solid var(--border2); color: var(--muted2); padding: 0.2rem 0.6rem; border-radius: 2px; }
+
+/* GALLERY */
+.phase-heading { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin: 2rem 0 0.9rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.6rem; }
+.phase-heading span { font-size: 0.65rem; background: var(--tag-bg); border: 1px solid var(--border2); color: var(--accent); padding: 0.15rem 0.5rem; border-radius: 2px; font-weight: 400; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 0.85rem; margin-top: 0.5rem; }
+.sc-card { background: var(--card); border: 1px solid var(--border); border-radius: 3px; overflow: hidden; transition: border-color 0.2s, box-shadow 0.2s; cursor: zoom-in; }
+.sc-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(79,158,255,0.15), 0 4px 20px rgba(0,0,0,0.5); }
+.sc-card img { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block; filter: brightness(0.88); transition: filter 0.2s; }
+.sc-card:hover img { filter: brightness(1.0); }
+.sc-cap { padding: 0.7rem 0.85rem 0.85rem; }
+.sc-num { font-size: 0.58rem; color: var(--accent); letter-spacing: 0.14em; margin-bottom: 0.18rem; }
+.sc-title { font-size: 0.76rem; color: var(--text); font-weight: 500; margin-bottom: 0.2rem; }
+.sc-desc { font-size: 0.71rem; color: var(--muted); line-height: 1.6; }
+
+/* CONFIG TABLE */
+.config-table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.78rem; }
+.config-table th { text-align: left; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 0.6rem 1rem; background: var(--card); border-bottom: 1px solid var(--border2); }
+.config-table td { padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); color: var(--muted2); vertical-align: top; }
+.config-table tr:last-child td { border-bottom: none; }
+.config-table td:first-child { color: var(--text); font-weight: 500; white-space: nowrap; }
+.config-table td code { background: var(--tag-bg); border: 1px solid var(--border2); color: var(--accent); padding: 0.12rem 0.45rem; border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 0.72rem; }
+
+/* OUTCOMES */
+.outcomes-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-top: 1.5rem; }
+.oc { background: var(--card); padding: 1.4rem 1rem; text-align: center; }
+.oc-n { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.35rem; }
+.oc-l { font-size: 0.7rem; color: var(--muted); line-height: 1.5; }
+
+/* SKILLS */
+.skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; margin-top: 1.5rem; }
+.sk { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 2px; transition: border-color 0.2s; }
+.sk:hover { border-color: var(--green); }
+.sk-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 0.5rem; }
+.sk-text { font-size: 0.76rem; color: var(--muted2); line-height: 1.6; }
+.sk-text strong { color: var(--text); display: block; margin-bottom: 0.1rem; font-size: 0.78rem; }
+
+/* FOOTER */
+.footer { padding: 2.5rem 0 4rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+.footer-brand { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--muted); }
+.footer-brand span { color: var(--accent); }
+.back-btn { font-size: 0.72rem; color: var(--accent); text-decoration: none; letter-spacing: 0.08em; border: 1px solid var(--accent); padding: 0.5rem 1.2rem; border-radius: 2px; transition: background 0.2s, color 0.2s; }
+.back-btn:hover { background: var(--accent); color: var(--bg); }
+
+/* LIGHTBOX */
+#lb { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:1000; align-items:center; justify-content:center; }
+#lb.open { display:flex; }
+#lb img { max-width:90vw; max-height:88vh; border:1px solid var(--border2); border-radius:3px; }
+#lb-close { position:fixed; top:1.5rem; right:2rem; color:var(--muted); font-size:1.5rem; cursor:pointer; line-height:1; }
+#lb-close:hover { color: var(--text); }
+
+@media (max-width: 700px) {
+  .phase-grid { grid-template-columns: 1fr; }
+  .outcomes-grid { grid-template-columns: 1fr 1fr; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .gallery { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div id="lb"><span id="lb-close">✕</span><img id="lb-img" src="" alt="Screenshot"></div>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="breadcrumb">Vishnu Sivadas &nbsp;/&nbsp; <span>Portfolio</span> &nbsp;/&nbsp; Project 1</div>
+  <div class="badge">Infrastructure Lab Project</div>
+  <h1>Windows Server 2022 &amp;<br><em>Active Directory Domain Lab</em></h1>
+  <p class="hero-lead">A comprehensive end-to-end lab project demonstrating the full lifecycle of enterprise IT infrastructure — from bare-metal OS installation through domain-joined client workstations, DHCP scope configuration, Group Policy enforcement, file server deployment, and live Active Directory user lifecycle management across 56 documented steps.</p>
+  <div class="meta-strip">
+    <div class="meta-item"><span class="meta-k">OS Platform</span><span class="meta-v">Windows Server 2022 Standard</span></div>
+    <div class="meta-item"><span class="meta-k">Domain</span><span class="meta-v">lab.local (DC01)</span></div>
+    <div class="meta-item"><span class="meta-k">Client OS</span><span class="meta-v">Windows 11 Pro</span></div>
+    <div class="meta-item"><span class="meta-k">Documented Steps</span><span class="meta-v">56 screenshots</span></div>
+    <div class="meta-item"><span class="meta-k">Environment</span><span class="meta-v">Virtualized Lab</span></div>
+  </div>
+</header>
+
+<div class="tags">
+  <span class="tag">Windows Server 2022</span>
+  <span class="tag">Active Directory DS</span>
+  <span class="tag">DNS Server</span>
+  <span class="tag g">DHCP Server</span>
+  <span class="tag g">Group Policy (GPO)</span>
+  <span class="tag g">File &amp; Storage Services</span>
+  <span class="tag o">Windows 11 Pro</span>
+  <span class="tag o">Domain Join</span>
+  <span class="tag o">NTFS Permissions</span>
+  <span class="tag">Identity &amp; Access Management</span>
+  <span class="tag">User Lifecycle Management</span>
+  <span class="tag">ITAM</span>
+</div>
+
+<!-- OVERVIEW -->
+<section class="section">
+  <div class="sec-label">01 — Project Overview</div>
+  <div class="sec-title">What This Project Covers</div>
+  <p class="sec-body">This lab simulates a real-world enterprise IT environment built from the ground up. It demonstrates hands-on proficiency across six key infrastructure domains: server provisioning, identity management, network services, policy enforcement, file access control, and client management. Every step was documented with screenshots to show the complete operational process — directly relevant to ITAM, helpdesk, and systems administration roles.</p>
+  <div class="phase-grid">
+    <div class="phase-card">
+      <div class="phase-icon">🖥️</div>
+      <div class="phase-num">Phase 1</div>
+      <div class="phase-name">Server Setup</div>
+      <div class="phase-desc">Installed Windows Server 2022 Standard (Desktop Experience), configured the admin account, renamed the server to DC01, and launched Server Manager.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-icon">🏗️</div>
+      <div class="phase-num">Phase 2</div>
+      <div class="phase-name">AD DS &amp; DNS</div>
+      <div class="phase-desc">Added Active Directory Domain Services and DNS roles, promoted DC01 to domain controller, and created the lab.local forest with a new root domain.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-icon">👥</div>
+      <div class="phase-num">Phase 3</div>
+      <div class="phase-name">Users &amp; OUs</div>
+      <div class="phase-desc">Built Organizational Units (IT, HR, Sales), created domain users in each OU, created security groups, and assigned users to their respective groups.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-icon">🌐</div>
+      <div class="phase-num">Phase 4</div>
+      <div class="phase-name">DHCP Server</div>
+      <div class="phase-desc">Installed the DHCP Server role, configured a scope for 192.168.10.0/24, set exclusions, assigned the default gateway, and activated the scope.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-icon">🔒</div>
+      <div class="phase-num">Phase 5</div>
+      <div class="phase-name">Group Policy</div>
+      <div class="phase-desc">Created the "Lab security IT policy" GPO, configured password policies, account lockout rules, and screen saver enforcement. Validated with gpupdate /force.</div>
+    </div>
+    <div class="phase-card">
+      <div class="phase-icon">📁</div>
+      <div class="phase-num">Phase 6</div>
+      <div class="phase-name">File Server &amp; Client</div>
+      <div class="phase-desc">Deployed File Server Resource Manager, created department shares with NTFS and share permissions, joined a Windows 11 client, and verified all access end-to-end.</div>
+    </div>
+  </div>
+</section>
+
+<!-- TIMELINE -->
+<section class="section">
+  <div class="sec-label">02 — Implementation Walkthrough</div>
+  <div class="sec-title">Complete Step-by-Step Timeline</div>
+  <div class="timeline">
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">01</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 1 — OS Installation</div>
+        <div class="t-title">Windows Server 2022 Installation</div>
+        <div class="t-desc">Selected Windows Server 2022 Standard (Desktop Experience) on a 60.2 GB virtual disk via the Microsoft Server Operating System Setup wizard. Configured the built-in Administrator password and confirmed first boot into Server Manager with initial roles visible.</div>
+        <div class="t-config"><span class="cfg">Edition: Standard (Desktop Experience)</span><span class="cfg">Disk: 60.2 GB</span><span class="cfg">Arch: x64</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">02</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 1 — Server Config</div>
+        <div class="t-title">Server Rename to DC01</div>
+        <div class="t-desc">Renamed the server from the default random hostname (WIN-KS2TRSUOD95) to DC01 via Settings → System → Rename this PC. This naming convention clearly identifies the machine's intended role as Primary Domain Controller before AD DS is installed.</div>
+        <div class="t-config"><span class="cfg">Hostname: DC01</span><span class="cfg">Role: Primary Domain Controller</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">03</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 2 — AD DS Role</div>
+        <div class="t-title">Installing Active Directory Domain Services</div>
+        <div class="t-desc">Used the Add Roles and Features Wizard to install Active Directory Domain Services, Group Policy Management, Remote Server Administration Tools, AD DS Snap-Ins, and the Active Directory module for Windows PowerShell — all on DC01.</div>
+        <div class="t-config"><span class="cfg">Role: AD DS</span><span class="cfg">Group Policy Mgmt</span><span class="cfg">RSAT + AD Module</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">04</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 2 — Domain Promotion</div>
+        <div class="t-title">Promoting DC01 to Domain Controller (lab.local)</div>
+        <div class="t-desc">Launched the AD DS Configuration Wizard and selected "Add a new forest". Set root domain name to lab.local. Configured domain controller options: Windows Server 2016 functional level, DNS Server enabled, Global Catalog enabled, DSRM password set. All prerequisite checks passed — server rebooted and promoted successfully.</div>
+        <div class="t-config"><span class="cfg">Domain: lab.local</span><span class="cfg">Forest Level: WS 2016</span><span class="cfg">DNS: Enabled</span><span class="cfg">GC: Enabled</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">05</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 3 — AD Structure</div>
+        <div class="t-title">OUs, Users &amp; Security Groups</div>
+        <div class="t-desc">Opened ADUC and verified the lab.local domain. Created three Organizational Units — IT, HR, and Sales — under the domain root. Populated OUs with users: John Smith (IT), Mike Brown (Sales), Emma Wilson (Sales). Created the Sales-Team security group and added Mike Brown as a member, confirming via the Members tab.</div>
+        <div class="t-config"><span class="cfg">OUs: IT, HR, Sales</span><span class="cfg">Users: John Smith, Mike Brown, Emma Wilson</span><span class="cfg">Group: Sales-Team</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">06</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 4 — DHCP</div>
+        <div class="t-title">DHCP Server Role &amp; Scope Configuration</div>
+        <div class="t-desc">Installed DHCP Server on DC01.lab.local. Created a new IPv4 scope covering 192.168.10.1–192.168.10.100 (/24 subnet). Added an exclusion for .1–.10 (reserved for static infrastructure). Configured scope options: assigned default gateway 192.168.10.254. Activated the scope. Verified the DHCP console showing Address Pool, Leases, Reservations, Scope Options, and Policies nodes.</div>
+        <div class="t-config"><span class="cfg">Range: 192.168.10.1–.100</span><span class="cfg">Exclusion: .1–.10</span><span class="cfg">Gateway: 192.168.10.254</span><span class="cfg">Subnet: /24</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">07</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 5 — Group Policy</div>
+        <div class="t-title">GPO — Password &amp; Lockout Policies</div>
+        <div class="t-desc">Created GPO "Lab security IT policy" linked to lab.local. Edited under Computer Configuration → Windows Settings → Security Settings → Account Policies. Set Password Policy: 5-password history, 90-day max age, 30-day min age, 8-character min length, complexity enabled. Set Lockout Policy: 30-minute duration, 5 failed attempts threshold, 30-minute reset counter.</div>
+        <div class="t-config">
+          <span class="cfg">History: 5 passwords</span><span class="cfg">Max Age: 90 days</span><span class="cfg">Min Length: 8 chars</span>
+          <span class="cfg">Complexity: On</span><span class="cfg">Lockout: 5 attempts / 30 min</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">08</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 5 — GPO Personalization</div>
+        <div class="t-title">Screen Lock Policy &amp; gpupdate /force</div>
+        <div class="t-desc">Under User Configuration → Admin Templates → Control Panel → Personalization: enabled screen saver, password-protected screen saver, and screen saver timeout. Ran gpupdate /force from Administrator command prompt — confirmed "Computer Policy update has completed successfully. User Policy update has completed successfully."</div>
+        <div class="t-config"><span class="cfg">Screen Saver: Enabled</span><span class="cfg">Password Lock: Enabled</span><span class="cfg">Applied: gpupdate /force</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">09</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 6 — File Server</div>
+        <div class="t-title">File Server Resource Manager &amp; Department Shares</div>
+        <div class="t-desc">Installed File Server Resource Manager on DC01. Created three folders on C:\shares\: HR, IT, and Sales. Assigned Share Permissions on Sales: LAB\Sales-Team granted Full Control, Change, and Read. Configured NTFS Security on IT folder: assigned rights to CREATOR OWNER, SYSTEM, IT-Team (LAB\IT-Team), and LAB\Administrators — enforcing least-privilege access.</div>
+        <div class="t-config"><span class="cfg">Shares: C:\shares\HR, IT, Sales</span><span class="cfg">Share Perms: Sales-Team Full Control</span><span class="cfg">NTFS: IT-Team scoped</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">10</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 6 — Client VM</div>
+        <div class="t-title">Windows 11 Pro Installation &amp; Domain Join</div>
+        <div class="t-desc">Installed Windows 11 Pro (required for domain join) on a second VM. Joined WIN11-PC to lab.local via System Properties → Computer Name/Domain Changes. Received the "Welcome to the lab.local domain" confirmation. Logged in as John Smith (Jsmith@lab.local) — Windows 11 Start Menu confirmed domain account active.</div>
+        <div class="t-config"><span class="cfg">Client: WIN11-PC</span><span class="cfg">Domain: lab.local</span><span class="cfg">Login: Jsmith@lab.local</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">11</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 6 — Verification</div>
+        <div class="t-title">Share Access &amp; GPO Verification (gpresult /r)</div>
+        <div class="t-desc">From WIN11-PC, accessed \\192.168.10.254 via Run dialog — HR, IT, Sales, netlogon, and sysvol shares all visible. Ran gpresult /r as jsmith: confirmed Domain: LAB, Applied GPO: "Lab security IT policy", and IT-Team security group membership — full end-to-end policy and access validation.</div>
+        <div class="t-config"><span class="cfg">Shares visible: HR, IT, Sales</span><span class="cfg">GPO: Lab security IT policy</span><span class="cfg">Group: IT-Team confirmed</span></div>
+      </div>
+    </div>
+
+    <div class="t-step">
+      <div class="t-left"><div class="t-dot">12</div><div class="t-line"></div></div>
+      <div class="t-body">
+        <div class="t-phase">Phase 6 — User Lifecycle</div>
+        <div class="t-title">AD User Lifecycle Management Tasks</div>
+        <div class="t-desc">Demonstrated key helpdesk/ITAM tasks in ADUC: unlocked John Smith's account (Account tab → Unlock account), performed a password reset (Reset Password dialog showing account status: Unlocked), created new user Emma Wilson (Ewilson@lab.local, Sales OU, must change password at next logon), and disabled John Smith's account — confirmed "Object John Smith has been disabled." Verified DHCP lease via ipconfig /release and /renew — client received 192.168.10.11 with gateway 192.168.10.254.</div>
+        <div class="t-config"><span class="cfg">Unlock: John Smith</span><span class="cfg">Password Reset</span><span class="cfg">New User: Emma Wilson</span><span class="cfg">Disable: John Smith</span><span class="cfg">DHCP Lease: 192.168.10.11</span></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- SCREENSHOTS -->
+<section class="section">
+  <div class="sec-label">03 — Documentation Gallery</div>
+  <div class="sec-title">56 Step-by-Step Screenshots</div>
+  <p class="sec-body">Every configuration step was captured as evidence of hands-on lab work. Click any screenshot to view full size.</p>
+
+  <div class="phase-heading">Phase 1 — OS Installation &amp; Server Setup <span>01 – 06</span></div>
+  <div class="gallery">
+    <div class="sc-card" onclick="lb('01_edition_selection_win_server.png')"><img src="01_edition_selection_win_server.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 01</div><div class="sc-title">OS Edition Selection</div><div class="sc-desc">Selecting Windows Server 2022 Standard (Desktop Experience) — x64 architecture with full GUI environment for administrator usability.</div></div></div>
+    <div class="sc-card" onclick="lb('02_disk_allocation.png')"><img src="02_disk_allocation.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 02</div><div class="sc-title">Disk Allocation</div><div class="sc-desc">Drive 0 with 60.2 GB of unallocated space selected as the OS installation target. Single partition, clean install.</div></div></div>
+    <div class="sc-card" onclick="lb('3_setting_up_admin_account.png')"><img src="3_setting_up_admin_account.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 03</div><div class="sc-title">Administrator Account Setup</div><div class="sc-desc">First-boot login screen showing the built-in Administrator account configured and ready for initial server setup.</div></div></div>
+    <div class="sc-card" onclick="lb('4_server_desktop_first_boot.png')"><img src="4_server_desktop_first_boot.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 04</div><div class="sc-title">Server Manager — First Boot</div><div class="sc-desc">Server Manager dashboard on first boot, showing File and Storage Services and Local Server roles. Network discovery prompt visible.</div></div></div>
+    <div class="sc-card" onclick="lb('5_server_renaming.png')"><img src="5_server_renaming.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 05</div><div class="sc-title">Renaming Server to DC01</div><div class="sc-desc">Renaming from the random default hostname WIN-KS2TRSUOD95 to DC01, establishing the naming convention for the primary Domain Controller.</div></div></div>
+    <div class="sc-card" onclick="lb('6_Server_manager_dashboard.png')"><img src="6_Server_manager_dashboard.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 06</div><div class="sc-title">Server Manager Dashboard</div><div class="sc-desc">Clean Server Manager dashboard post-rename, showing File and Storage Services and Local Server tiles ready for role additions.</div></div></div>
+  </div>
+
+  <div class="phase-heading">Phase 2 — Active Directory DS &amp; DNS <span>07 – 14</span></div>
+  <div class="gallery">
+    <div class="sc-card" onclick="lb('7_selecting_server_roles.png')"><img src="7_selecting_server_roles.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 07</div><div class="sc-title">Server Roles Selection</div><div class="sc-desc">Add Roles and Features Wizard showing the full list of available server roles on DC01, before selecting AD DS.</div></div></div>
+    <div class="sc-card" onclick="lb('8_Adding_Active_directory_domain_services.png')"><img src="8_Adding_Active_directory_domain_services.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 08</div><div class="sc-title">Selecting AD DS Role</div><div class="sc-desc">Active Directory Domain Services role checked. Description confirms AD DS uses Domain Controllers to provide single logon access to network resources.</div></div></div>
+    <div class="sc-card" onclick="lb('9_Installation_of_AD.png')"><img src="9_Installation_of_AD.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 09</div><div class="sc-title">AD DS Installation in Progress</div><div class="sc-desc">Feature installation running on DC01: AD DS, Group Policy Management, RSAT, AD DS Snap-Ins, and Active Directory Administrative Center all being installed.</div></div></div>
+    <div class="sc-card" onclick="lb('10_new_forest_domain_name.png')"><img src="10_new_forest_domain_name.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 10</div><div class="sc-title">New Forest — Root Domain Name</div><div class="sc-desc">AD DS Configuration Wizard: "Add a new forest" selected, root domain name entered as lab.local. DC01 is the target server.</div></div></div>
+    <div class="sc-card" onclick="lb('11_domain_controller_options.png')"><img src="11_domain_controller_options.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 11</div><div class="sc-title">Domain Controller Options</div><div class="sc-desc">Forest and domain functional levels set to Windows Server 2016. DNS Server and Global Catalog enabled. DSRM recovery password set.</div></div></div>
+    <div class="sc-card" onclick="lb('12_prerequiste_checks.png')"><img src="12_prerequiste_checks.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 12</div><div class="sc-title">Prerequisites Check — Passed</div><div class="sc-desc">Green checkmark: "All prerequisite checks passed successfully." Ready to install and promote DC01 to Domain Controller.</div></div></div>
+    <div class="sc-card" onclick="lb('13_domain_login_screen.png')"><img src="13_domain_login_screen.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 13</div><div class="sc-title">Domain Login Screen</div><div class="sc-desc">Post-promotion login screen showing LAB\Administrator — confirming DC01 has successfully joined and is now authenticating against lab.local.</div></div></div>
+    <div class="sc-card" onclick="lb('14_server_manger_with_ADDS_and_DNS.png')"><img src="14_server_manger_with_ADDS_and_DNS.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 14</div><div class="sc-title">Server Manager — AD DS &amp; DNS Active</div><div class="sc-desc">Dashboard now shows AD DS and DNS as active roles (Roles: 3), both reporting healthy green Manageability status.</div></div></div>
+  </div>
+
+  <div class="phase-heading">Phase 3 — Organizational Units, Users &amp; Groups <span>15 – 20</span></div>
+  <div class="gallery">
+    <div class="sc-card" onclick="lb('15_active_directory_users_and_computers.png')"><img src="15_active_directory_users_and_computers.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 15</div><div class="sc-title">Active Directory Users and Computers</div><div class="sc-desc">ADUC console opened showing the lab.local domain and Saved Queries — starting point for all identity management tasks.</div></div></div>
+    <div class="sc-card" onclick="lb('16_Domain_structure___visible_domain.png')"><img src="16_Domain_structure___visible_domain.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 16</div><div class="sc-title">Default Domain Containers</div><div class="sc-desc">lab.local expanded showing default containers: Builtin, Computers, Domain Controllers, ForeignSecurityPrincipals, Managed Service Accounts, and Users.</div></div></div>
+    <div class="sc-card" onclick="lb('17_Organizational_units_created.png')"><img src="17_Organizational_units_created.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 17</div><div class="sc-title">Organizational Units Created</div><div class="sc-desc">Three custom OUs — IT, HR, and Sales — created under lab.local to mirror real-world departmental structure for scoped policy and access management.</div></div></div>
+    <div class="sc-card" onclick="lb('18_user_created_in_different_OU.png')"><img src="18_user_created_in_different_OU.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 18</div><div class="sc-title">User Created in IT OU</div><div class="sc-desc">John Smith user account created and correctly placed inside the IT Organizational Unit, demonstrating proper OU-based user placement.</div></div></div>
+    <div class="sc-card" onclick="lb('19_Security_groups_created.png')"><img src="19_Security_groups_created.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 19</div><div class="sc-title">Security Group Created — Sales OU</div><div class="sc-desc">Sales OU showing Mike Brown (User) and Sales-Team (Security Group) — security group created alongside the department's user account.</div></div></div>
+    <div class="sc-card" onclick="lb('20_Users_added_top_groups.png')"><img src="20_Users_added_top_groups.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 20</div><div class="sc-title">User Added to Security Group</div><div class="sc-desc">Sales-Team Properties → Members tab confirming Mike Brown (lab.local/Sales) is a member — group-based access control established.</div></div></div>
+  </div>
+
+  <div class="phase-heading">Phase 4 — DHCP Server Configuration <span>21 – 28</span></div>
+  <div class="gallery">
+    <div class="sc-card" onclick="lb('21_DHCP_Installing.png')"><img src="21_DHCP_Installing.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 21</div><div class="sc-title">DHCP Role Installation</div><div class="sc-desc">Installation in progress on DC01.lab.local: DHCP Server, RSAT, and DHCP Server Tools being installed via Add Roles and Features Wizard.</div></div></div>
+    <div class="sc-card" onclick="lb('22_DHCP_Install_complete.png')"><img src="22_DHCP_Install_complete.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 22</div><div class="sc-title">DHCP Role — Install Complete</div><div class="sc-desc">Server Manager Dashboard now shows AD DS and DHCP as active roles (Roles: 4), both reporting healthy green Manageability status.</div></div></div>
+    <div class="sc-card" onclick="lb('23_DHCP_IP_range.png')"><img src="23_DHCP_IP_range.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 23</div><div class="sc-title">DHCP Scope — IP Address Range</div><div class="sc-desc">New Scope Wizard: Start IP 192.168.10.1, End IP 192.168.10.100, subnet length /24, mask 255.255.255.0. Scope covers 100 addresses.</div></div></div>
+    <div class="sc-card" onclick="lb('24_DHCP_Exclusions.png')"><img src="24_DHCP_Exclusions.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 24</div><div class="sc-title">DHCP Scope — Exclusion Range</div><div class="sc-desc">Exclusion range 192.168.10.1–192.168.10.10 added, reserving these addresses for static assignment to servers and network infrastructure.</div></div></div>
+    <div class="sc-card" onclick="lb('25_configuration_done_of_dhcp.png')"><img src="25_configuration_done_of_dhcp.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 25</div><div class="sc-title">Configure DHCP Options Now</div><div class="sc-desc">"Yes, I want to configure these options now" selected — proceeding to assign router, DNS server, and WINS settings for clients in this scope.</div></div></div>
+    <div class="sc-card" onclick="lb('26_assigning_of_router_gateway.png')"><img src="26_assigning_of_router_gateway.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 26</div><div class="sc-title">Default Gateway Assignment</div><div class="sc-desc">Router (Default Gateway) configured as 192.168.10.254 — this address will be distributed to all DHCP clients obtaining leases from this scope.</div></div></div>
+    <div class="sc-card" onclick="lb('27_DHCP_Scope_activated.png')"><img src="27_DHCP_Scope_activated.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 27</div><div class="sc-title">DHCP Scope — Activated</div><div class="sc-desc">"You have successfully completed the New Scope wizard." Scope is active and ready to begin issuing IP address leases to clients.</div></div></div>
+    <div class="sc-card" onclick="lb('28_DHCP_Console_verified.png')"><img src="28_DHCP_Console_verified.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 28</div><div class="sc-title">DHCP Console Verified</div><div class="sc-desc">DHCP MMC console showing the active scope [192.168.10.0] with Address Pool, Address Leases, Reservations, Scope Options, and Policies nodes visible.</div></div></div>
+  </div>
+
+  <div class="phase-heading">Phase 5 — Group Policy Configuration <span>29 – 38</span></div>
+  <div class="gallery">
+    <div class="sc-card" onclick="lb('29_Group_Policy_Managment.png')"><img src="29_Group_Policy_Managment.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 29</div><div class="sc-title">Group Policy Management Console</div><div class="sc-desc">GPMC opened showing Forest: lab.local — entry point for creating, linking, and managing all Group Policy Objects in the domain.</div></div></div>
+    <div class="sc-card" onclick="lb('30_GPO_Created.png')"><img src="30_GPO_Created.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 30</div><div class="sc-title">GPO — Domain Status View</div><div class="sc-desc">lab.local domain in GPMC with DC01.lab.local confirmed as baseline domain controller. SYSVOL replication status context visible.</div></div></div>
+    <div class="sc-card" onclick="lb('31_Group_policy_managment_editor.png')"><img src="31_Group_policy_managment_editor.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 31</div><div class="sc-title">Group Policy Management Editor</div><div class="sc-desc">"Lab security IT policy [DC01.LAB.LOCAL]" open in GPME, showing Computer Configuration and User Configuration branches ready for policy settings.</div></div></div>
+    <div class="sc-card" onclick="lb('32_GPO_Password_policy.png')"><img src="32_GPO_Password_policy.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 32</div><div class="sc-title">Password Policy — Before Config</div><div class="sc-desc">Account Policies → Password Policy node, all settings showing "Not Defined" — baseline state before applying enterprise security requirements.</div></div></div>
+    <div class="sc-card" onclick="lb('33_Password_policy_configured.png')"><img src="33_Password_policy_configured.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 33</div><div class="sc-title">Password Policy — Configured</div><div class="sc-desc">Password policy applied: 5 passwords remembered, max age 90 days, min age 30 days, minimum 8 characters, complexity requirements enabled.</div></div></div>
+    <div class="sc-card" onclick="lb('34_aCCOUNT_LOCK_PLICY.png')"><img src="34_aCCOUNT_LOCK_PLICY.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 34</div><div class="sc-title">Account Lockout Policy — Before</div><div class="sc-desc">Account Lockout Policy node — lockout duration, threshold, and reset counter all "Not Defined" before configuration.</div></div></div>
+    <div class="sc-card" onclick="lb('35_Account_Lockout_configured.png')"><img src="35_Account_Lockout_configured.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 35</div><div class="sc-title">Account Lockout Policy — Configured</div><div class="sc-desc">Lockout configured: 30-minute duration, 5 invalid logon attempts threshold, 30-minute reset counter. Protects domain against brute-force attacks.</div></div></div>
+    <div class="sc-card" onclick="lb('36_GPO_Personalization.png')"><img src="36_GPO_Personalization.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 36</div><div class="sc-title">User Config — Personalization</div><div class="sc-desc">Administrative Templates → Control Panel → Personalization, showing 16 screen saver and desktop settings available for policy configuration.</div></div></div>
+    <div class="sc-card" onclick="lb('37_GPO_Screen_lock_configured.png')"><img src="37_GPO_Screen_lock_configured.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 37</div><div class="sc-title">Screen Saver Policy — Enabled</div><div class="sc-desc">Enable screen saver: Enabled. Password protect the screen saver: Enabled. Screen saver timeout: Enabled. Idle workstation lock enforced via GPO.</div></div></div>
+    <div class="sc-card" onclick="lb('38_GP_update_force.png')"><img src="38_GP_update_force.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 38</div><div class="sc-title">gpupdate /force — Policies Applied</div><div class="sc-desc">"Computer Policy update has completed successfully. User Policy update has completed successfully." All GPO settings immediately active on the domain.</div></div></div>
+  </div>
+
+  <div class="phase-heading">Phase 6 — File Server, Client Setup &amp; Verification <span>39 – 56</span></div>
+  <div class="gallery">
+    <div class="sc-card" onclick="lb('39_file_server_installing.png')"><img src="39_file_server_installing.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 39</div><div class="sc-title">File Server Resource Manager Install</div><div class="sc-desc">Installing File and iSCSI Services, File Server Resource Manager, and File Services Tools on DC01.lab.local.</div></div></div>
+    <div class="sc-card" onclick="lb('40_shares_folder_created.png')"><img src="40_shares_folder_created.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 40</div><div class="sc-title">Department Share Folders</div><div class="sc-desc">C:\shares directory containing HR, IT, and Sales file folders — the three department shares aligned with the AD OU structure.</div></div></div>
+    <div class="sc-card" onclick="lb('41_Share_permission.png')"><img src="41_Share_permission.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 41</div><div class="sc-title">Share Permissions — Sales Folder</div><div class="sc-desc">Sales share permissions: LAB\Sales-Team security group granted Full Control, Change, and Read at the share level — role-based access applied.</div></div></div>
+    <div class="sc-card" onclick="lb('42_NTFS_Permissions.png')"><img src="42_NTFS_Permissions.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 42</div><div class="sc-title">NTFS Permissions — IT Folder</div><div class="sc-desc">IT folder Security tab showing CREATOR OWNER, SYSTEM, IT-Team (LAB\IT-Team), and LAB\Administrators with granular NTFS permission entries.</div></div></div>
+    <div class="sc-card" onclick="lb('43_win11_setup.png')"><img src="43_win11_setup.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 43</div><div class="sc-title">Windows 11 Setup — Language</div><div class="sc-desc">Windows 11 Setup: language and currency format set to English (United States) — first step of client VM installation.</div></div></div>
+    <div class="sc-card" onclick="lb('44_win_11_edition.png')"><img src="44_win_11_edition.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 44</div><div class="sc-title">Windows 11 Pro Edition Selected</div><div class="sc-desc">Windows 11 Pro selected — the edition required for Active Directory domain join, unlike Home editions which cannot join a domain.</div></div></div>
+    <div class="sc-card" onclick="lb('45_win_11_installation.png')"><img src="45_win_11_installation.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 45</div><div class="sc-title">Windows 11 Installation Progress</div><div class="sc-desc">Windows 11 installation at 11% complete — client workstation being built on the second virtual machine in the lab network.</div></div></div>
+    <div class="sc-card" onclick="lb('46_win_11_setup_complete.png')"><img src="46_win_11_setup_complete.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 46</div><div class="sc-title">Windows 11 Desktop Ready</div><div class="sc-desc">Windows 11 Pro desktop fully set up with taskbar and Microsoft Edge — client VM ready for domain join and testing.</div></div></div>
+    <div class="sc-card" onclick="lb('47_domain_joined_succesfully.png')"><img src="47_domain_joined_succesfully.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 47</div><div class="sc-title">Domain Join — Successful</div><div class="sc-desc">"Welcome to the lab.local domain." — WIN11-PC successfully joined the domain. Computer is now an AD-managed object under DC01.</div></div></div>
+    <div class="sc-card" onclick="lb('48_domain_user_login_sucess.png')"><img src="48_domain_user_login_sucess.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 48</div><div class="sc-title">Domain User Login Success</div><div class="sc-desc">Windows 11 Start Menu showing John Smith (Jsmith@lab.local) authenticated as a domain user — full AD login working on the client.</div></div></div>
+    <div class="sc-card" onclick="lb('49_shared_folder_visible.png')"><img src="49_shared_folder_visible.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 49</div><div class="sc-title">Network Shares Accessible</div><div class="sc-desc">File Explorer on WIN11-PC accessing \\192.168.10.254 — HR, IT, Sales, netlogon, and sysvol shares visible from the domain file server.</div></div></div>
+    <div class="sc-card" onclick="lb('50_gpresults_output.png')"><img src="50_gpresults_output.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 50</div><div class="sc-title">gpresult /r — Full GPO Validation</div><div class="sc-desc">Output confirms: Domain: LAB, Applied GPO: "Lab security IT policy", User security groups including IT-Team — complete policy and identity verification.</div></div></div>
+    <div class="sc-card" onclick="lb('51_user_account_unlocking.png')"><img src="51_user_account_unlocking.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 51</div><div class="sc-title">User Account Unlock</div><div class="sc-desc">John Smith Properties → Account tab with the "Unlock account" checkbox — simulating a real helpdesk task after repeated failed logon attempts.</div></div></div>
+    <div class="sc-card" onclick="lb('52__User_Password_reset.png')"><img src="52__User_Password_reset.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 52</div><div class="sc-title">Password Reset</div><div class="sc-desc">Reset Password dialog showing "Account Lockout Status on this Domain Controller: Unlocked" — combined password reset and account unlock workflow.</div></div></div>
+    <div class="sc-card" onclick="lb('53_New_user_Created.png')"><img src="53_New_user_Created.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 53</div><div class="sc-title">New User — Emma Wilson</div><div class="sc-desc">New Object – User wizard confirming creation of Emma Wilson (Ewilson@lab.local) in lab.local/Sales OU, with "must change password at next logon" set.</div></div></div>
+    <div class="sc-card" onclick="lb('54_Disabled_user_account.png')"><img src="54_Disabled_user_account.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 54</div><div class="sc-title">User Account Disabled</div><div class="sc-desc">"Object John Smith has been disabled." — simulating an offboarding or access revocation workflow where a user's domain access must be immediately revoked.</div></div></div>
+    <div class="sc-card" onclick="lb('55_final_structure.png')"><img src="55_final_structure.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 55</div><div class="sc-title">Final AD Structure — lab.local</div><div class="sc-desc">Completed Active Directory structure showing all OUs (HR, IT, Sales) and standard containers under lab.local — the final state of the domain environment.</div></div></div>
+    <div class="sc-card" onclick="lb('56_ipconfig_release_renew.png')"><img src="56_ipconfig_release_renew.png" alt=""><div class="sc-cap"><div class="sc-num">SCREENSHOT 56</div><div class="sc-title">DHCP Lease — Verified</div><div class="sc-desc">ipconfig /release then /renew confirms: IP 192.168.10.11 leased from DHCP scope, DNS suffix lab.local, gateway 192.168.10.254 — full network stack validated.</div></div></div>
+  </div>
+</section>
+
+<!-- CONFIG TABLE -->
+<section class="section">
+  <div class="sec-label">04 — Configuration Reference</div>
+  <div class="sec-title">Key Settings &amp; Values</div>
+  <table class="config-table">
+    <thead><tr><th>Component</th><th>Setting</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>OS</td><td>Windows Server Edition</td><td>Standard (Desktop Experience) x64</td></tr>
+      <tr><td>Server Hostname</td><td>Domain Controller Name</td><td><code>DC01</code></td></tr>
+      <tr><td>Domain</td><td>Root Domain Name</td><td><code>lab.local</code></td></tr>
+      <tr><td>Domain</td><td>Functional Level</td><td>Windows Server 2016</td></tr>
+      <tr><td>OUs</td><td>Organizational Units</td><td>IT, HR, Sales</td></tr>
+      <tr><td>DHCP</td><td>Scope Range</td><td><code>192.168.10.1 – 192.168.10.100</code></td></tr>
+      <tr><td>DHCP</td><td>Exclusion Range</td><td><code>192.168.10.1 – 192.168.10.10</code></td></tr>
+      <tr><td>DHCP</td><td>Default Gateway</td><td><code>192.168.10.254</code></td></tr>
+      <tr><td>GPO Name</td><td>Policy Object</td><td>Lab security IT policy</td></tr>
+      <tr><td>Password Policy</td><td>Minimum Length / Max Age</td><td>8 characters / 90 days</td></tr>
+      <tr><td>Lockout Policy</td><td>Threshold / Duration</td><td>5 attempts / 30 minutes</td></tr>
+      <tr><td>File Server</td><td>Share Location</td><td><code>C:\shares\HR, IT, Sales</code></td></tr>
+      <tr><td>Client OS</td><td>Edition / Hostname</td><td>Windows 11 Pro / WIN11-PC</td></tr>
+      <tr><td>Client Network</td><td>DHCP Lease Assigned</td><td><code>192.168.10.11</code></td></tr>
+      <tr><td>Verification</td><td>GPO Applied (gpresult)</td><td>Lab security IT policy ✓</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- OUTCOMES -->
+<section class="section">
+  <div class="sec-label">05 — Outcomes</div>
+  <div class="sec-title">What Was Achieved</div>
+  <div class="outcomes-grid">
+    <div class="oc"><div class="oc-n">56</div><div class="oc-l">Documented configuration steps</div></div>
+    <div class="oc"><div class="oc-n">6</div><div class="oc-l">Infrastructure phases completed end-to-end</div></div>
+    <div class="oc"><div class="oc-n">3</div><div class="oc-l">Department OUs with users, groups &amp; shares</div></div>
+    <div class="oc"><div class="oc-n">8+</div><div class="oc-l">Security policy settings enforced via GPO</div></div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="section">
+  <div class="sec-label">06 — Skills Demonstrated</div>
+  <div class="sec-title">Technical Competencies</div>
+  <div class="skills-grid">
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>Windows Server 2022 Provisioning</strong>OS installation, edition selection, disk configuration, admin setup, and initial server manager configuration from scratch.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>Active Directory Domain Services</strong>Forest creation, domain controller promotion, functional level configuration, and integrated DNS setup.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>Organizational Unit Design</strong>Building logical OU hierarchies that mirror real departmental structures for scoped policy and access management.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>User &amp; Group Lifecycle Management</strong>Creating users in OUs, security group creation, membership assignment, and full lifecycle tasks: create, unlock, reset password, disable.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>DHCP Server Configuration</strong>Scope creation, exclusion ranges, gateway assignment, scope activation, and lease verification with ipconfig /renew.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>Group Policy Management</strong>GPO creation and linking, password and lockout policies, personalization enforcement, and validation via gpupdate /force and gpresult /r.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>File Server &amp; Permissions</strong>File Server Resource Manager installation, department share creation, and applying both share-level and NTFS permissions to AD security groups.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>Windows 11 Domain Join</strong>Client OS installation, domain membership via System Properties, domain user authentication, and network resource access verification.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>End-to-End Policy Validation</strong>Using gpresult /r to confirm GPO application, security group membership, and domain connectivity from the client side.</div></div>
+    <div class="sk"><div class="sk-dot"></div><div class="sk-text"><strong>ITAM-Relevant Identity Management</strong>Understanding user-asset-OU relationships, access control scoping, and thorough documentation — core skills for ITAM and compliance roles.</div></div>
+  </div>
+</section>
+
+</div>
+
+<div class="wrap">
+  <div class="footer">
+    <div class="footer-brand">Vishnu Sivadas &nbsp;<span>//</span>&nbsp; ITAM Analyst Portfolio</div>
+    <a class="back-btn" href="https://sites.google.com/view/vishnusivadas/project-page">← Back to Projects</a>
+  </div>
+</div>
+
+<script>
+function lb(src) {
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lb').classList.add('open');
+}
+document.getElementById('lb').addEventListener('click', function(e) {
+  if (e.target === this || e.target.id === 'lb-close') this.classList.remove('open');
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.getElementById('lb').classList.remove('open');
+});
+</script>
+</body>
+</html>
